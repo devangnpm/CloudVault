@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  user_id         Int       @id @default(autoincrement())
+  username        String    @unique
+  email           String    @unique
+  hashed_password String
+  created_at      DateTime  @default(now())
+  folders         Folder[]
+  sessions        Session[]
+}
+
+model Folder {
+  folder_id  Int      @id @default(autoincrement())
+  name       String
+  created_at DateTime @default(now())
+  user_id    Int // Foreign key to associate with User
+  user       User     @relation(fields: [user_id], references: [user_id])
+  files      File[] // One-to-Many relationship with File
+}
+
+model File {
+  file_id    Int      @id @default(autoincrement())
+  name       String
+  created_at DateTime @default(now())
+  folder_id  Int // Foreign key to associate with Folder
+  folder     Folder   @relation(fields: [folder_id], references: [folder_id])
+}
+
+model Session {
+  id        Int      @id @default(autoincrement())
+  user_id   Int
+  sid       String   @unique
+  expiresAt DateTime
+  user      User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+}
