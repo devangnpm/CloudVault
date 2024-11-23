@@ -2,8 +2,10 @@ const express = require("express");
 const passport = require("passport");
 const expressSession = require("express-session");
 const path = require("path");
-import { PrismaSessionStore } from "@quixo3/prisma-session-store";
-import { PrismaClient } from "@prisma/client";
+const {PrismaSessionStore} = require("@quixo3/prisma-session-store");
+const {PrismaClient} = require("@prisma/client");
+const userRouter = require("./routes/userRoutes");
+
 
 const app = express();
 
@@ -32,3 +34,6 @@ app.use(
   })
 );
 
+app.use("/", userRouter);
+
+app.listen(3000, console.log("Server Running 3000"));

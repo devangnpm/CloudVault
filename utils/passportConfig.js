@@ -21,7 +21,7 @@ passport.use(
       // step2 - validating user provided pass with hash pass in db
       const passwordMatch = await bcrypt.compare(
         password,
-        user.hashed_password
+        user.hashed_password,
       );
 
       // step3 - if password not found return msg
