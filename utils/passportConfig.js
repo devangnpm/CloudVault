@@ -1,8 +1,9 @@
 const LocalStrategy = require("passport-local").Strategy;
-const bcrypt = require("brcryptjs");
+const bcryptjs = require("bcryptjs");
 const asyncHandler = require("express-async-handler");
 const {findUserByUsername,findUserByID }= require("../db/queries");
 const passport = require("passport");
+
 
 passport.use(
   new LocalStrategy(
@@ -19,7 +20,7 @@ passport.use(
       }
 
       // step2 - validating user provided pass with hash pass in db
-      const passwordMatch = await bcrypt.compare(
+      const passwordMatch = await bcryptjs.compare(
         password,
         user.hashed_password,
       );
@@ -36,7 +37,7 @@ passport.use(
   )
 );
 
-passport.serializeUser(function (user, done) {
+passport.serializeUser((user, done) => {
   done(null, user.user_id);
 });
 
@@ -51,3 +52,5 @@ passport.deserializeUser(
     }
   })
 );
+
+module.exports = passport;

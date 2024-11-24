@@ -1,10 +1,10 @@
 const express = require("express");
-const passport = require("passport");
 const expressSession = require("express-session");
 const path = require("path");
 const {PrismaSessionStore} = require("@quixo3/prisma-session-store");
 const {PrismaClient} = require("@prisma/client");
 const userRouter = require("./routes/userRoutes");
+const passport = require("./utils/passportConfig");
 
 
 const app = express();
@@ -17,13 +17,13 @@ app.use(express.urlencoded({ extended: true }));
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
-app.use(passport.initialize());
+
 app.use(
   expressSession({
     cookie: {
       maxAge: 7 * 24 * 60 * 60 * 1000, // ms
     },
-    secret: "a santa at nasa",
+    secret: "a santa at nasa", // use env variable always
     resave: true,
     saveUninitialized: true,
     store: new PrismaSessionStore(new PrismaClient(), {
@@ -31,9 +31,23 @@ app.use(
       dbRecordIdIsSessionId: true,
       dbRecordIdFunction: undefined,
     }),
+
   })
 );
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use("/", userRouter);
+
+// Global error handler
+app.use((err, req, res, next) => {
+  res.status(500).json({
+    message: err.message || "Something went wrong!",
+    // You can send the error details here if needed (for development purposes)
+    // err: err, 
+  });
+});
+
 
 app.listen(3000, console.log("Server Running 3000"));
