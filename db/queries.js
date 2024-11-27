@@ -32,15 +32,31 @@ async function findUserByID(user_id) {
 }
 
 // Create a new folder
-async function createFolder(folder_name) {
+async function createFolder(user_id,folder_name) {
   return prisma.folder.create({
     data: {
-      folder_name: folder_name,
       user_id: user_id,
+      folder_name: folder_name,
     },
   });
 }
 
+async function getUserFolders(user_id) {
+  // Fetch folders and associated files for a specific user
+  return await prisma.folder.findMany({
+    where: { user_id: user_id },
+  })
+}
+
+
+async function getFilesInFolder(folderId) {
+  return await prisma.file.findMany({
+    where: {folder_id: parseInt(folderId, 10)},
+  });
+}
+
+
+  
 
 // Export the functions
 module.exports = {
@@ -48,4 +64,6 @@ module.exports = {
   findUserByUsername,
   findUserByID,
   createFolder,
+  getUserFolders,
+  getFilesInFolder,
 };

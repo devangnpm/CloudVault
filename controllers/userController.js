@@ -16,6 +16,13 @@ async function createUser(req,res) {
 }
 
 
+async function getUserFoldersAndFiles(user_id) {
+    const userData = await db.getUserFoldersAndFiles(user_id);
+    return userData;
+}
+
+
 module.exports = {
     createUser,
+    getUserFoldersAndFiles,
 }
