@@ -6,6 +6,7 @@ const {PrismaClient} = require("@prisma/client");
 const userRouter = require("./routes/userRoutes");
 const passport = require("./utils/passportConfig");
 const methodOverride = require('method-override');
+require('dotenv').config();
 
 
 const app = express();
@@ -26,7 +27,7 @@ app.use(
     cookie: {
       maxAge: 7 * 24 * 60 * 60 * 1000, // ms
     },
-    secret: "a santa at nasa", // use env variable always
+    secret: process.env.SESSION_SECRET_KEY, // use env variable always
     resave: true,
     saveUninitialized: true,
     store: new PrismaSessionStore(new PrismaClient(), {
