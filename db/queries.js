@@ -48,6 +48,29 @@ async function getUserFolders(user_id) {
   })
 }
 
+async function getFolderById(folderId, userId) {
+  if (!folderId || !userId) {
+    throw new Error("folderId and userId are required");
+  }
+  
+  try {
+    const folder = await prisma.folder.findUnique({
+      where: {
+        folder_id: parseInt(folderId, 10), // Using folder_id as the unique identifier
+        user_id: userId, // Check if the folder belongs to the user
+      },
+    });
+
+    if (!folder) {
+      throw new Error(`Folder with ID ${folderId} not found or you don't have access`);
+    }
+
+    return folder;
+  } catch (error) {
+    console.error('Error fetching folder by ID:', error);
+    throw new Error('Error fetching folder');
+  }
+}
 
 async function getFilesInFolder(folderId) {
   return await prisma.file.findMany({
@@ -55,6 +78,38 @@ async function getFilesInFolder(folderId) {
   });
 }
 
+// Save file details to the database
+async function saveFileToFolder(fileDetails, folderId) {
+  const { filename, filepath } = fileDetails;
+  console.log(fileDetails);
+
+  console.log("logfolderid:" + folderId);
+  
+  try {
+    const savedFile = await prisma.file.create({
+      data: {
+        folder_id: parseInt(folderId, 10), // The folder where the file is being saved
+        filename: filename,  // The original filename
+        filepath: filepath,  // The path where the file is stored
+      },
+    });
+    
+    // Return the saved file object
+    return savedFile;
+  } catch (error) {
+    console.error('Error saving file:', error);
+    throw error; // Rethrow the error to be handled by the caller
+  }
+}
+
+
+async function getFilepath(fileId) {
+  return prisma.file.findFirst({
+    where: {
+      file_id: parseInt(fileId,10)
+    }
+  });
+}
 
   
 
@@ -66,4 +121,7 @@ module.exports = {
   createFolder,
   getUserFolders,
   getFilesInFolder,
+  saveFileToFolder,
+  getFolderById,
+  getFilepath,
 };

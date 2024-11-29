@@ -8,9 +8,9 @@ datasource db {
 }
 
 model User {
-  user_id         Int       @id @default(autoincrement())
-  username        String    @unique
-  email           String    @unique
+  user_id         Int      @id @default(autoincrement())
+  username        String   @unique
+  email           String   @unique
   hashed_password String
   folders         Folder[]
 }
@@ -28,7 +28,8 @@ model File {
   file_id    Int      @id @default(autoincrement())
   folder_id  Int
   created_at DateTime @default(now())
-  name       String
+  filename   String // The original name of the file
+  filepath   String // Path to the uploaded file
   folder     Folder   @relation(fields: [folder_id], references: [folder_id])
 }
 
@@ -36,5 +37,5 @@ model Session {
   id        String   @id
   sid       String   @unique
   data      String
-  expiresAt   DateTime
+  expiresAt DateTime
 }

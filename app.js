@@ -5,13 +5,16 @@ const {PrismaSessionStore} = require("@quixo3/prisma-session-store");
 const {PrismaClient} = require("@prisma/client");
 const userRouter = require("./routes/userRoutes");
 const passport = require("./utils/passportConfig");
+const methodOverride = require('method-override');
 
 
 const app = express();
 
 // parses url-encoded request bodies into a JS object (req.body)
 // handling form data encoded as application/x-www-form-urlencoded
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride('_method'));
 
 // setting our views path and view engine to ejs
 app.set("views", path.join(__dirname, "views"));
@@ -37,6 +40,10 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Serve static files from the uploads folder
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 app.use("/", userRouter);
 

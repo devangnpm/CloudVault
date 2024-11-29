@@ -21,6 +21,8 @@ async function getUserFoldersAndFiles(user_id) {
     return userData;
 }
 
+// other logic are directly defined in useRoutes
+
 
 module.exports = {
     createUser,

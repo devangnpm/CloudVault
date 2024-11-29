@@ -6,11 +6,48 @@ const passport = require("../utils/passportConfig");
 const { getUserFolders } = require("../db/queries");
 const { getFilesInFolder} = require("../db/queries");
 const {getFolderById} = require("../db/queries");
+const multer = require("multer");
+const path = require('path');
+const { saveFileToFolder } = require("../db/queries");
+const { getFilepath } = require("../db/queries");
+const fs = require('fs');
+
+
+
+// Set up storage engine
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // Folder where files will be stored
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = Date.now() + '-' + file.originalname; // Unique file name
+    cb(null, uniqueName);
+  }
+});
+
+// Initialize multer with the storage engine
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // Limit to 5MB
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+    if (!allowedTypes.includes(file.mimetype)) {
+      return cb(new Error("Invalid file type. Only JPEG, PNG, and PDF are allowed."));
+    }
+    cb(null, true);
+  },
+});
+
 
 
 const userRouter = express.Router();
 
 //wrapping in asynchandler to avoid try catch and pass to error handling middleware
+
+// Redirect to /login for unmatched routes or when `/` is accessed directly
+userRouter.get("/", (req, res) => {
+  res.redirect("/login");
+});
 
 userRouter.get(
   "/login",
@@ -64,7 +101,9 @@ userRouter.get("/folders", async (req, res) => {
   try {
     // Get user ID from session
     console.log(req.session.user);
-    const userId = req.session.user_id;
+    const userId = req.user.user_id;
+
+    console.log(`/folder: ${userId}`);
 
     // Fetch all folders and their files for the user
     const folders = await getUserFolders(userId);
@@ -84,13 +123,20 @@ userRouter.get("/folder/:folder_id", async (req, res) => {
   }
 
   try {
+    console.log("User logged in:", req.user); // Log user data
     const folderId = req.params.folder_id;
-    const userId = req.session.user_id;
+    const userId = req.user.user_id;
+    console.log(`FolderId: ${folderId}`);
+    console.log(`userId: ${userId}`);
 
-    // Fetch the folder by ID (replace with actual logic to fetch folder and files)
-    const folder = await getUserFolders(userId);
-    console.log(folder)
+
+
+    // Fetch the folder by ID 
+    const folder = await getFolderById(folderId,userId);
+    console.log("Folder:" + folder)
     const files = await getFilesInFolder(folderId);
+    console.log("Files:" + files)
+
 
     res.render("files", {
       folder: folder, // Folder data
@@ -103,10 +149,61 @@ userRouter.get("/folder/:folder_id", async (req, res) => {
 });
 
 
-userRouter.get("/files/upload", async (req,res) => {
-  const folderId = req.body.folderId;  // Accessing the folder ID from the form submission
-  
+userRouter.post('/files/upload/:folder_id', upload.single('file'), async (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).send('Unauthorized');
+  }
+
+  try {
+    const folderId = req.params.folder_id; // Folder ID from the form submission
+    console.log(`Folder ID log:${folderId}`)
+    const fileDetails = {
+      filename: req.file.originalname, // Original file name
+      filepath: req.file.path,        // Path to the file on disk
+    };
+
+    // Save file to the database
+    const savedFile = await saveFileToFolder(fileDetails, folderId);
+
+    res.status(200).json({
+      message: 'File uploaded and saved successfully!',
+      file: savedFile,
+    });
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+//delete route here to delete a file
+
+userRouter.delete("/files/delete/:file_id", async (req,res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).send("Unauthorized");
+  }
+
+  try {
+    const fileId = req.params.file_id;
+    const {filepath} = await getFilepath(fileId);
+
+    // deleting the file from our uploads folder via fs 
+    fs.unlink(filepath,(err) => {
+      if(err) {
+        console.error('Error deleting file:', err);
+        return res.status(500).send('Error deleting file');
+      }
+    })
+    console.log(`Filepath: ${filepath}`);
+    console.log(`fileId delte route /files/delete:${fileId}`);
+    
+  } catch (error) {
+    console.error("Error deleting file:", error);
+    res.status(500).send("Internal server Error");
+  }
+
 
 })
+
 
 module.exports = userRouter;

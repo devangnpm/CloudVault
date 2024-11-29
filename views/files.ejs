@@ -1,56 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Files in <%= folder.name %> - CloudVault</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<style>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* Navbar Styling */
+      .navbar {
+        background-color: #007bff; /* Blue navbar */
+        height: 70px;
+        display: flex;
+        align-items: center;
+        margin-top: -10px;
+        font-size: 2em;
+        margin-top: -1px;
 
-</style>
-<body>
-<!-- Main Content Section -->
-<div class="container mt-5">
+      }
 
-    <!-- Upload File Form -->
-    <h5>Upload a new file</h5>
-    <form action="/files/upload" method="POST" enctype="multipart/form-data">
-        <input type="hidden" name="folderId" value="<%= folder.folder_id %>">
-        <input type="file" name="file" class="form-control mb-2" required>
-        <button type="submit" class="btn btn-success w-100">Upload File</button>
-    </form>
+      .navbar-brand {
+        color: white !important; /* White text for brand */
+        font-weight: bold;
+        padding-left: 10px;
+        font: monospace;
+        font-size: 0.7em;
+        padding-top: 10px;
+        align-items: center;
 
-    <hr>
+        
+      }
 
-    <!-- Files List -->
-    <h5>Files in this Folder</h5>
-    <ul class="list-group">
-        <% if (files.length > 0) { %>
-            <% files.forEach(file => { %>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <% if (file.preview) { %>
-                            <img src="<%= file.preview %>" alt="Preview" style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px;">
-                        <% } %>
-                        <span><%= file.name %></span>
-                    </div>
-                    <div>
-                        <a href="/files/download/<%= file.id %>" class="btn btn-sm btn-outline-primary">Download</a>
-                        <form action="/files/<%= file.id %>?_method=DELETE" method="POST" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                        </form>
-                    </div>
-                </li>
-            <% }); %>
-        <% } else { %>
-            <p>No files found in this folder. Start uploading!</p>
+      .navbar-brand:hover {
+        color: black !important; /* Hover effect */
+      }
+
+      /* Main Content Styling */
+      .container {
+        background-color: #f8f9fa; /* Light background */
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      h5 {
+        color: #343a40; /* Dark text for headers */
+        font-weight: 600;
+        padding-top: 10px;
+      }
+
+      /* File List Styling */
+      .list-group-item {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #ffffff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-top: 2px;
+      }
+
+      .list-group-item:hover {
+        background-color: #e9ecef; /* Light hover effect */
+      }
+
+      .btn-outline-primary {
+        margin-right: 5px; /* Spacing between buttons */
+      }
+
+      .file-preview {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        margin-right: 10px;
+      }
+
+      .back-button {
+        margin-bottom: 15px;
+        background-color: honeydew;
+        color: black;
+      }
+
+      .back-button:hover {
+        background-color: black;
+        color: white;
+      }
+
+      /* Align file upload button with input field */
+      .upload-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .upload-container .upload-input {
+        flex: 3; /* Take up space on the left */
+      }
+
+      .upload-container .upload-btn {
+        margin-left: 10px; /* Space between input and button */
+        flex-shrink: 0; /* Prevent button from shrinking */
+      }
+
+      /* Upload Button Style */
+      .upload-btn {
+        padding: 6px 12px; /* Smaller button size */
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header Section -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <h1 class="navbar-brand">
+        <img src="https://img.icons8.com/fluency/48/cloud-storage.png" />
+        CloudVault
+      </h1>
+    </nav>
+
+    <!-- Main Content Section -->
+    <div class="container mt-5">
+      <!-- Back to Folders Button -->
+      <a href="/folders" class="btn btn-secondary back-button"
+        >← Back To Folders</a
+      >
+
+      <!-- Upload File Form -->
+      <h5>Upload a new file</h5>
+      <form
+        action="/files/upload/<%= folder.folder_id %>"
+        method="POST"
+        enctype="multipart/form-data"
+      >
+        <div class="upload-container">
+          <!-- Choose file input -->
+          <input
+            id="fileInput"
+            type="file"
+            name="file"
+            class="form-control upload-input"
+            required
+          />
+          <!-- Upload Button -->
+          <button type="submit" class="btn btn-success upload-btn">Upload</button>
+        </div>
+      </form>
+
+      <hr />
+
+      <!-- Files List -->
+      <h5>Files in this Folder</h5>
+      <ul class="list-group">
+        <% if (files.length > 0) { %> <% files.forEach(file => { %>
+        <li
+          class="list-group-item d-flex justify-content-between align-items-center"
+        >
+          <div class="d-flex align-items-center">
+            <% if (file.preview) { %>
+            <img src="<%= file.preview %>" alt="Preview" class="file-preview" />
+            <% } %>
+            <span><%= file.filename %></span>
+          </div>
+          <div>
+            <a
+              href="/files/download/<%= file.id %>"
+              class="btn btn-sm btn-outline-primary"
+              >Download</a
+            >
+            <form
+              action="/files/delete/<%= file.file_id %>?_method=DELETE"
+              method="POST"
+              class="d-inline"
+            >
+              <button type="submit" class="btn btn-sm btn-danger">
+                Delete
+              </button>
+            </form>
+          </div>
+        </li>
+        <% }); %> <% } else { %>
+        <p>No files found in this folder. Start uploading!</p>
         <% } %>
-    </ul>
-</div>
-<!-- Bootstrap JS and Dependencies -->
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+      </ul>
+    </div>
 
-</body>
+    <!-- Bootstrap JS and Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+  </body>
 </html>

@@ -1,70 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CloudVault - Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 h-screen flex items-center justify-center">
+  </head>
+  <body
+    class="bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 h-screen flex flex-col"
+  >
 
-    <div class="bg-white shadow-lg rounded-lg p-8 w-96">
+    <div class="flex-grow flex items-center justify-center">
+      <div class="bg-white shadow-lg rounded-lg p-8 w-96">
         <!-- Logo and Title -->
         <div class="flex items-center justify-center mb-6">
-            <!-- Logo -->
-            <img 
-                src="https://img.icons8.com/fluency/48/cloud-storage.png" 
-                alt="CloudVault Logo" 
-                class="h-10 w-10 mr-3"
-            />
-            <!-- Title -->
-            <h1 class="text-3xl font-bold text-gray-800">CloudVault</h1>
+          <!-- Logo -->
+          <img
+            src="https://img.icons8.com/fluency/48/cloud-storage.png"
+            alt="CloudVault Logo"
+            class="h-10 w-10 mr-3"
+          />
+          <!-- Title -->
+          <h1 class="text-3xl font-bold text-gray-800">CloudVault</h1>
         </div>
-        
+
         <!-- Login Form -->
         <form action="/login" method="POST" class="space-y-4">
-            <!-- Username Field -->
-            <div>
-                <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-                <input 
-                    type="text" 
-                    id="username" 
-                    name="username" 
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Enter your username" 
-                    required
-                />
-            </div>
+          <!-- Username Field -->
+          <div>
+            <label
+              for="username"
+              class="block text-sm font-medium text-gray-700"
+              >Username</label
+            >
+            <input
+              type="text"
+              id="username"
+              name="username"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter your username"
+              required
+            />
+          </div>
 
-            <!-- Password Field -->
-            <div>
-                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Enter your password" 
-                    required
-                />
-            </div>
+          <!-- Password Field -->
+          <div>
+            <label
+              for="password"
+              class="block text-sm font-medium text-gray-700"
+              >Password</label
+            >
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
 
-            <!-- Login Button -->
-            <div>
-                <button 
-                    type="submit" 
-                    class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                >
-                    Login
-                </button>
-            </div>
+          <!-- Login Button -->
+          <div>
+            <button
+              type="submit"
+              class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              Login
+            </button>
+          </div>
         </form>
+
+        <!-- Demo Login Button -->
+        <div class="mt-4">
+          <form action="/login" method="POST">
+            <input type="hidden" name="username" value="john1" />
+            <input type="hidden" name="password" value="john1" />
+            <button
+              type="submit"
+              class="w-full bg-gray-300 hover:bg-green-300 text-gray-800 font-medium py-2 px-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+            >
+              Demo Login
+            </button>
+          </form>
+        </div>
 
         <!-- Optional Signup Link -->
         <p class="text-center text-sm text-gray-600 mt-4">
-            Don't have an account? 
-            <a href="/signup" class="text-blue-500 hover:underline">Sign up</a>
+          Don't have an account?
+          <a href="/signup" class="text-blue-500 hover:underline">Sign up</a>
         </p>
+      </div>
     </div>
-</body>
+
+    <!-- Footer -->
+    <footer class="bg-stone-800 text-stone-50 p-2 text-center">
+      <p class="font-mono text-lg">Made with ❤️ by Devang</p>
+    </footer>
+  </body>
 </html>
