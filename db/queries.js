@@ -144,6 +144,14 @@ async function getFilepath(fileId) {
   });
 }
 
+async function getfilePathFromDB(safeFilename) {
+  return await prisma.file.findFirst({
+    where: {
+      filename: safeFilename,
+    },
+  });
+}
+
 async function deleteFileRecord(fileId) {
    return await prisma.file.delete({
     where: {
@@ -166,4 +174,5 @@ module.exports = {
   getFolderById,
   getFilepath,
   deleteFileRecord,
+  getfilePathFromDB,
 };

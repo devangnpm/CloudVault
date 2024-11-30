@@ -9,7 +9,7 @@ const { getFolderById } = require("../db/queries");
 const multer = require("multer");
 const path = require("path");
 const { saveFileToFolder } = require("../db/queries");
-const { getFilepath } = require("../db/queries");
+const { getFilepath , getfilePathFromDB } = require("../db/queries");
 const { deleteFileRecord, createFolder } = require("../db/queries");
 
 
@@ -252,5 +252,36 @@ userRouter.post("/folders/create/:userId", async (req,res) => {
 
 
 })
+
+
+
+userRouter.get('/files/download/:filename', async (req, res) => {
+  const { filename } = req.params;
+
+  // Sanitize the filename to prevent directory traversal
+  const safeFilename = path.basename(filename);
+
+  // Use the file path retrieved from the database
+  const {filepath} = await getfilePathFromDB(safeFilename)  // Assuming the 'filepath' column stores the relative path
+
+  console.log(`filepath: ${filepath}`);
+
+  // Construct the full file path on the server
+  const filePath = path.join(__dirname, '../', filepath);
+
+  // Check if the file exists
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send('File not found on the server.');
+  }
+
+  // Send the file for download
+  res.download(filePath, safeFilename, (err) => {
+    if (err) {
+      console.error("Error during file download:", err);
+      return res.status(500).send('Error downloading the file.');
+    }
+  });
+});
+
 
 module.exports = userRouter;
