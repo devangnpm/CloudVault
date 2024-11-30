@@ -9,9 +9,8 @@ const { getFolderById } = require("../db/queries");
 const multer = require("multer");
 const path = require("path");
 const { saveFileToFolder } = require("../db/queries");
-const { getFilepath } = require("../db/queries");
+const { getFilepath, getfilePathFromDB } = require("../db/queries");
 const { deleteFileRecord, createFolder } = require("../db/queries");
-
 
 const fs = require("fs");
 
@@ -104,8 +103,8 @@ userRouter.get("/folders", async (req, res) => {
     console.log(req.session.user);
     const userId = req.user.user_id;
 
-    const {username} = await findUserByID(userId);
-    
+    const { username } = await findUserByID(userId);
+
     console.log(`username: ${username}`);
 
     console.log(`/folder: ${userId}`);
@@ -152,7 +151,6 @@ userRouter.get("/folder/:folder_id", async (req, res) => {
   }
 });
 
-
 // fileupload route
 userRouter.post(
   "/files/upload/:folder_id",
@@ -172,11 +170,14 @@ userRouter.post(
       // };
 
       // Loop through the uploaded files and save details to the database
-      const filesDetailsArray = req.files.map((file) => ({
-        filename: file.originalname,
-        filepath: file.path,
-      }));
-
+      const filesDetailsArray = req.files.map((file) => {
+        // Sanitize filenames to prevent directory traversal
+        const safeFilename = path.basename(file.originalname);
+        return {
+          filename: safeFilename,
+          filepath: file.path, // Make sure the file path is valid
+        };
+      });
       // Save file to the database
       const savedFile = await saveFileToFolder(filesDetailsArray, folderId);
 
@@ -232,12 +233,12 @@ userRouter.delete("/files/delete/:file_id", async (req, res) => {
   }
 });
 
-userRouter.post("/folders/create/:userId", async (req,res) => {
+userRouter.post("/folders/create/:userId", async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).send("Unauthorized");
   }
 
-  const {folder_name} = req.body;
+  const { folder_name } = req.body;
 
   const userId = req.params.userId;
 
@@ -245,12 +246,37 @@ userRouter.post("/folders/create/:userId", async (req,res) => {
 
   console.log(folder_name);
 
-  createFolder(userId,folder_name);
+  createFolder(userId, folder_name);
   // Redirect to the previous page or folder page
   res.redirect("/folders");
+});
 
+userRouter.get("/files/download/:filename", async (req, res) => {
+  const { filename } = req.params;
 
+  // Sanitize the filename to prevent directory traversal
+  const safeFilename = encodeURIComponent(filename);
 
-})
+  // Use the file path retrieved from the database
+  const { filepath } = await getfilePathFromDB(safeFilename); // Assuming the 'filepath' column stores the relative path
+
+  console.log(`filepath: ${filepath}`);
+
+  // Construct the full file path on the server
+  const filePath = path.join(__dirname, "../", filepath);
+
+  // Check if the file exists
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send("File not found on the server.");
+  }
+
+  // Send the file for download
+  res.download(filePath, safeFilename, (err) => {
+    if (err) {
+      console.error("Error during file download:", err);
+      return res.status(500).send("Error downloading the file.");
+    }
+  });
+});
 
 module.exports = userRouter;
