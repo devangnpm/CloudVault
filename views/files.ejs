@@ -136,7 +136,8 @@
           <input
             id="fileInput"
             type="file"
-            name="file"
+            name="files"
+            multiple
             class="form-control upload-input"
             required
           />
@@ -155,8 +156,8 @@
           class="list-group-item d-flex justify-content-between align-items-center"
         >
           <div class="d-flex align-items-center">
-            <% if (file.preview) { %>
-            <img src="<%= file.preview %>" alt="Preview" class="file-preview" />
+            <% if (file.filepath) { %>
+            <img src="<%= file.filepath %>" alt="Preview" class="file-preview" />
             <% } %>
             <span><%= file.filename %></span>
           </div>

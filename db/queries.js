@@ -35,8 +35,8 @@ async function findUserByID(user_id) {
 async function createFolder(user_id,folder_name) {
   return prisma.folder.create({
     data: {
-      user_id: user_id,
-      folder_name: folder_name,
+      user_id: parseInt(user_id,10),
+      name: folder_name,
     },
   });
 }
@@ -79,25 +79,58 @@ async function getFilesInFolder(folderId) {
 }
 
 // Save file details to the database
-async function saveFileToFolder(fileDetails, folderId) {
-  const { filename, filepath } = fileDetails;
-  console.log(fileDetails);
+// async function saveFileToFolder(fileDetails, folderId) {
+//   const { filename, filepath } = fileDetails;
+//   console.log(fileDetails);
 
-  console.log("logfolderid:" + folderId);
+//   console.log("logfolderid:" + folderId);
   
-  try {
-    const savedFile = await prisma.file.create({
-      data: {
-        folder_id: parseInt(folderId, 10), // The folder where the file is being saved
-        filename: filename,  // The original filename
-        filepath: filepath,  // The path where the file is stored
-      },
-    });
+//   try {
+//     const savedFile = await prisma.file.create({
+//       data: {
+//         folder_id: parseInt(folderId, 10), // The folder where the file is being saved
+//         filename: filename,  // The original filename
+//         filepath: filepath,  // The path where the file is stored
+//       },
+//     });
     
-    // Return the saved file object
-    return savedFile;
+//     // Return the saved file object
+//     return savedFile;
+//   } catch (error) {
+//     console.error('Error saving file:', error);
+//     throw error; // Rethrow the error to be handled by the caller
+//   }
+// }
+
+
+async function saveFileToFolder(filesDetailsArray, folderId) {
+  try {
+    // Ensure the folderId is correctly parsed to an integer
+    const folderIdInt = parseInt(folderId, 10);
+
+    const savedFiles = await Promise.all(
+      filesDetailsArray.map(async (fileDetails) => {
+        const { filename, filepath } = fileDetails;
+
+        console.log("Saving file:", fileDetails);
+
+        // Save each file's details to the database
+        const savedFile = await prisma.file.create({
+          data: {
+            folder_id: folderIdInt, // The folder where the file is being saved
+            filename: filename,     // The original filename
+            filepath: filepath,     // The path where the file is stored
+          },
+        });
+
+        return savedFile;
+      })
+    );
+
+    // Return the array of saved files
+    return savedFiles;
   } catch (error) {
-    console.error('Error saving file:', error);
+    console.error('Error saving files:', error);
     throw error; // Rethrow the error to be handled by the caller
   }
 }
@@ -109,6 +142,14 @@ async function getFilepath(fileId) {
       file_id: parseInt(fileId,10)
     }
   });
+}
+
+async function deleteFileRecord(fileId) {
+   return await prisma.file.delete({
+    where: {
+      file_id: parseInt(fileId,10)
+    }
+   });
 }
 
   
@@ -124,4 +165,5 @@ module.exports = {
   saveFileToFolder,
   getFolderById,
   getFilepath,
+  deleteFileRecord,
 };
