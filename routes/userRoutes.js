@@ -9,10 +9,8 @@ const { getFolderById } = require("../db/queries");
 const multer = require("multer");
 const path = require("path");
 const { saveFileToFolder } = require("../db/queries");
-<<<<<<< HEAD
-const { getFilepath, getfilePathFromDB } = require("../db/queries");
-=======
-const { getFilepath , getfilePathFromDB } = require("../db/queries");
+const {  getfilePathFromDB } = require("../db/queries");
+const { getFilepath  } = require("../db/queries");
 const { deleteFileRecord, createFolder } = require("../db/queries");
 
 const fs = require("fs");
