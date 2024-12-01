@@ -43,7 +43,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Serving the files from my uploads folder for filepreview in view
-app.use('/folder/uploads', express.static('uploads'));
+app.use('/folder/uploads', express.static(path.join(__dirname, 'routes', 'uploads')));
 
 app.use("/", userRouter);
 
